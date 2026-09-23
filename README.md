@@ -225,17 +225,20 @@ Has 3 parameter contexts — Source (Snowflake connection), Ingestion (Snowflake
 
 Creates the three dynamic Iceberg tables and a stream on `ALARM_EVENTS` for the Kafka Sink connector's CDC reads. Target lag: 1 minute for CLEAN, 2 minutes for STATUS and ALARMS.
 
-### Phase 6: Seed data + live demo
+### Phase 6: Produce sensor data
 
-**`05_seed_data.sql`** — Run as OF_KAFKA_ADMIN
+**On EC2** (or re-run anytime to add more data):
+```bash
+python3 produce_sensor_data.py
+```
 
-Inserts 6,000 synthetic sensor readings directly into `SENSOR_READINGS_RAW` (same schema the Kafka connector produces). Three alarm scenarios baked in:
+Produces 6,000 JSON messages (50 stores × 6 sensors × 20 readings) with 3 alarm scenarios:
 
-- Store 4421: Freezer FRZ-4421-003 compressor failing — temp climbing from -2°F to +18°F over 30 min
+- Store 4421: Freezer FRZ-4421-003 compressor failing — temp climbing from -10°F to +18°F
 - Store 6010: Walk-in cooler door stuck open — temp spiking to 52°F
 - Store 7345: Refrigeration unit cycling — intermittent alarms every few minutes
 
-Within 2 minutes, `SENSOR_READINGS_CLEAN` populates. Within 3 minutes, `EQUIPMENT_STATUS` shows the current state. Alarm events flow back to the `cold_chain.alarm_events` MSK topic.
+The HP connector ingests them into `SENSOR_READINGS_RAW` (schema-evolved flat columns with FLOAT types). Dynamic tables refresh within 1-2 minutes. Alarm events flow back to `cold_chain.alarm_events` via the Sink connector.
 
 ## Reset and teardown
 
@@ -268,10 +271,12 @@ snowflake/
 ├── 01_demo_objects.sql     Database, warehouse, schemas, event table
 ├── 02_openflow_deployment.sql  DCP proxy + EAI + shared deployment + runtime
 ├── 03_connector_grants.sql     Runtime role grants
-├── 04_dynamic_tables.sql   Dynamic Iceberg tables (clean, status, alarms)
-├── 05_seed_data.sql        Generate sample sensor readings
+├── 04_dynamic_tables.sql   Dynamic Iceberg tables (clean, status, alarms) + stream
 ├── 05_reset.sql            Rebuild dynamic table layer only
 └── 99_teardown.sql         Drop everything (except shared deployment)
+
+tools/
+└── produce_sensor_data.py  Python Kafka producer (6K sensor readings, 3 alarm scenarios)
 ```
 
 ## Snowflake objects

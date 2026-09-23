@@ -105,8 +105,8 @@ def generate_readings():
                     "store_id": store_id,
                     "equipment_type": eq_type,
                     "zone": zone,
-                    "temperature_f": temp,
-                    "set_point_f": set_point,
+                    "temperature_f": float(temp),
+                    "set_point_f": float(set_point),
                     "door_open": door,
                     "reading_ts": ts.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 }
