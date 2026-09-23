@@ -125,10 +125,20 @@ Copy the token.
 
 **On EC2 (SSH to dcp_agent_public_ip from terraform output):**
 ```bash
+# Write bootstrap token to file
+sudo mkdir -p /etc/dcp
+echo '<paste token here>' | sudo tee /etc/dcp/credentials > /dev/null
+sudo chmod 644 /etc/dcp/credentials
+
+# Pull and run DCP agent
+sudo docker pull snowflakedb/dcp-client:latest
 sudo docker run -d --name dcp-agent \
-  --restart always \
-  -e BOOTSTRAP_TOKEN='<paste token here>' \
-  snowflakedb/data-connectivity-proxy:latest
+  --restart unless-stopped \
+  -v /etc/dcp/credentials:/etc/dcp-agent/secrets/dcp-bootstrap-token:ro \
+  snowflakedb/dcp-client:latest
+
+# Check logs (should show "control session refreshed")
+sudo docker logs dcp-agent 2>&1 | tail -10
 ```
 
 **Verify in Snowsight:**
@@ -154,35 +164,58 @@ Grants the runtime role access to database, schemas, and warehouse.
 
 ### Phase 4: Openflow connectors (Openflow UI)
 
-**Connector 1 — Kafka Consumer (MSK → Snowflake)**
+**Connector 1 — Kafka HP Ingest (MSK → Snowflake)**
+
+Template: **Apache Kafka** ("Kafka High Performance" in parameter contexts)
+
+Uses Snowpipe Streaming — serverless, no warehouse needed.
 
 | Parameter | Value |
 |-----------|-------|
-| Bootstrap Servers | *(from terraform output, port 9096)* |
+| Bootstrap Servers | `b-1.dmichalkofkafkamsk.34p6ti.c2.kafka.us-east-1.amazonaws.com:9096,b-2.dmichalkofkafkamsk.34p6ti.c2.kafka.us-east-1.amazonaws.com:9096` |
 | Topic | `cold_chain.sensor_readings` |
 | Consumer Group | `of_kafka_ingest` |
 | Security Protocol | `SASL_SSL` |
 | SASL Mechanism | `SCRAM-SHA-512` |
 | SASL Username | `dmichalk-of-kafka` |
-| SASL Password | *(from Secrets Manager or terraform.tfvars)* |
+| SASL Password | `D3m0-Kafka-2026!` |
 | Destination Database | `OF_KAFKA` |
 | Destination Schema | `INGEST` |
-| Role | `OF_KAFKA_RUNTIME_ROLE` |
-| Warehouse | `OF_KAFKA_WH` |
+| Snowflake Role | `OF_KAFKA_RUNTIME_ROLE` |
+| Snowflake Authentication | `SNOWFLAKE_MANAGED` |
 
-**Connector 2 — Kafka Producer (Snowflake → MSK)**
+**Connector 2 — Kafka Sink / CDC (Snowflake → MSK)**
+
+Template: **Snowflake to Kafka without mTLS encryption** ("Apache Kafka Sink (SASL)" in parameter contexts)
+
+Has 3 parameter contexts — Source (Snowflake connection), Ingestion (CDC source table), Destination (Kafka broker).
+
+*Kafka Sink SASL Source Parameters:*
 
 | Parameter | Value |
 |-----------|-------|
-| Bootstrap Servers | *(same as above)* |
+| Snowflake Role | `OF_KAFKA_RUNTIME_ROLE` |
+| Snowflake Warehouse | `OF_KAFKA_WH` |
+| Snowflake Database | `OF_KAFKA` |
+| Snowflake Schema | `INGEST` |
+| Snowflake Authentication | `SNOWFLAKE_MANAGED` |
+
+*Kafka Sink SASL Ingestion Parameters:*
+
+| Parameter | Value |
+|-----------|-------|
+| Source Table | `ALARM_EVENTS` |
+
+*Kafka Sink SASL Destination Parameters:*
+
+| Parameter | Value |
+|-----------|-------|
+| Bootstrap Servers | `b-1.dmichalkofkafkamsk.34p6ti.c2.kafka.us-east-1.amazonaws.com:9096,b-2.dmichalkofkafkamsk.34p6ti.c2.kafka.us-east-1.amazonaws.com:9096` |
 | Topic | `cold_chain.alarm_events` |
 | Security Protocol | `SASL_SSL` |
 | SASL Mechanism | `SCRAM-SHA-512` |
 | SASL Username | `dmichalk-of-kafka` |
-| SASL Password | *(same)* |
-| Source Table | `OF_KAFKA.INGEST.ALARM_EVENTS` |
-| Role | `OF_KAFKA_RUNTIME_ROLE` |
-| Warehouse | `OF_KAFKA_WH` |
+| SASL Password | `D3m0-Kafka-2026!` |
 
 ### Phase 5: Dynamic table pipeline (SQL)
 
