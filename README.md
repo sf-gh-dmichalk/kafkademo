@@ -200,14 +200,12 @@ Has 3 parameter contexts — Source (Snowflake connection), Ingestion (Snowflake
 | Source Schema | `INGEST` |
 | Snowflake Authentication | `SNOWFLAKE_MANAGED` |
 
-*Kafka Sink SASL Ingestion Parameters (Snowflake connection for CDC reads):*
+*Kafka Sink SASL Ingestion Parameters (Snowflake CDC source):*
 
 | Parameter | Value |
 |-----------|-------|
+| Snowflake FQN Stream Name | `OF_KAFKA.INGEST.ALARM_EVENTS_STREAM` |
 | Snowflake Role | `OF_KAFKA_RUNTIME_ROLE` |
-| Snowflake Warehouse | `OF_KAFKA_WH` |
-| Source Database | `OF_KAFKA` |
-| Source Schema | `INGEST` |
 | Snowflake Authentication | `SNOWFLAKE_MANAGED` |
 
 *Kafka Sink SASL Destination Parameters (Kafka broker):*
