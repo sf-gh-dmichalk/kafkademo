@@ -141,6 +141,14 @@ resource "aws_security_group" "dcp" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Conduktor Console UI"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     description = "All outbound (DCP agent needs 443 to Snowflake + 9096 to MSK)"
     from_port   = 0

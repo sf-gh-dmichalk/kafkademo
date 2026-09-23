@@ -240,6 +240,20 @@ Produces 6,000 JSON messages (50 stores × 6 sensors × 20 readings) with 3 alar
 
 The HP connector ingests them into `SENSOR_READINGS_RAW` (schema-evolved flat columns with FLOAT types). Dynamic tables refresh within 1-2 minutes. Alarm events flow back to `cold_chain.alarm_events` via the Sink connector.
 
+### Phase 7: Conduktor Console (Kafka UI for demoing)
+
+```bash
+./tools/setup_conduktor.sh <ec2-public-ip> \
+  "b-1.dmichalkofkafkamsk.34p6ti.c2.kafka.us-east-1.amazonaws.com:9096,b-2.dmichalkofkafkamsk.34p6ti.c2.kafka.us-east-1.amazonaws.com:9096" \
+  "dmichalk-of-kafka" "D3m0-Kafka-2026!"
+```
+
+Opens Conduktor Console on `http://<ec2-public-ip>:8080`. Pre-configured with the MSK cluster (SCRAM auth).
+
+Login: `admin@conduktor.io` / `Admin123!`
+
+Use it during the demo to show topics, messages, consumer groups, and the round-trip in real time.
+
 ## Reset and teardown
 
 **`05_reset.sql`** — Drops the dynamic tables. Re-run `04_dynamic_tables.sql` to rebuild. Keeps connector data.
@@ -276,7 +290,8 @@ snowflake/
 └── 99_teardown.sql         Drop everything (except shared deployment)
 
 tools/
-└── produce_sensor_data.py  Python Kafka producer (6K sensor readings, 3 alarm scenarios)
+├── produce_sensor_data.py  Python Kafka producer (6K sensor readings, 3 alarm scenarios)
+└── setup_conduktor.sh      Deploys Conduktor Console on EC2 for Kafka topic UI
 ```
 
 ## Snowflake objects
