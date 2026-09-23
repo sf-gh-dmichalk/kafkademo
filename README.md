@@ -225,7 +225,7 @@ Has 3 parameter contexts — Source (Snowflake connection), Ingestion (Snowflake
 
 **`04_dynamic_tables.sql`** — Run as OF_KAFKA_ADMIN
 
-Creates the three dynamic Iceberg tables. Target lag: 1 minute for CLEAN, 2 minutes for STATUS and ALARMS.
+Creates the three dynamic Iceberg tables and a stream on `ALARM_EVENTS` for the Kafka Sink connector's CDC reads. Target lag: 1 minute for CLEAN, 2 minutes for STATUS and ALARMS.
 
 ### Phase 6: Seed data + live demo
 
@@ -304,6 +304,7 @@ snowflake/
 - `SENSOR_READINGS_CLEAN` — Deduplicated, typed, with deviation + alarm flag
 - `EQUIPMENT_STATUS` — Rolling 5-min window, one row per sensor (current state)
 - `ALARM_EVENTS` — Alarm transitions with duration (CDC source for outbound Kafka)
+- `ALARM_EVENTS_STREAM` — Stream on ALARM_EVENTS for Kafka Sink connector CDC
 
 ## AWS resources (Terraform-managed)
 

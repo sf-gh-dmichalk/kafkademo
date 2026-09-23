@@ -135,5 +135,15 @@ FROM readings_with_lag
 WHERE (is_alarm AND (prev_is_alarm = FALSE OR prev_is_alarm IS NULL))
    OR (NOT is_alarm AND prev_is_alarm);
 
+/* --- 4. Stream on ALARM_EVENTS for the Kafka Sink connector ---
+   The Snowflake-to-Kafka connector uses a stream to detect new rows
+   (CDC) and publish them to the outbound topic.
+   ----------------------------------------------------------------------- */
+CREATE STREAM IF NOT EXISTS ALARM_EVENTS_STREAM
+    ON DYNAMIC TABLE ALARM_EVENTS
+    SHOW_INITIAL_ROWS = TRUE
+    COMMENT = 'CDC stream for outbound Kafka sink connector';
+
 /* --- Verify --- */
 SHOW DYNAMIC TABLES IN SCHEMA OF_KAFKA.INGEST;
+SHOW STREAMS IN SCHEMA OF_KAFKA.INGEST;
