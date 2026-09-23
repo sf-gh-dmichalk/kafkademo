@@ -188,25 +188,29 @@ Uses Snowpipe Streaming — serverless, no warehouse needed.
 
 Template: **Snowflake to Kafka without mTLS encryption** ("Apache Kafka Sink (SASL)" in parameter contexts)
 
-Has 3 parameter contexts — Source (Snowflake connection), Ingestion (CDC source table), Destination (Kafka broker).
+Has 3 parameter contexts — Source (Snowflake connection), Ingestion (Snowflake CDC connection), Destination (Kafka broker). The source table is configured on the processor canvas, not in parameter contexts.
 
-*Kafka Sink SASL Source Parameters:*
+*Kafka Sink SASL Source Parameters (Snowflake connection for metadata):*
 
 | Parameter | Value |
 |-----------|-------|
 | Snowflake Role | `OF_KAFKA_RUNTIME_ROLE` |
 | Snowflake Warehouse | `OF_KAFKA_WH` |
-| Snowflake Database | `OF_KAFKA` |
-| Snowflake Schema | `INGEST` |
+| Source Database | `OF_KAFKA` |
+| Source Schema | `INGEST` |
 | Snowflake Authentication | `SNOWFLAKE_MANAGED` |
 
-*Kafka Sink SASL Ingestion Parameters:*
+*Kafka Sink SASL Ingestion Parameters (Snowflake connection for CDC reads):*
 
 | Parameter | Value |
 |-----------|-------|
-| Source Table | `ALARM_EVENTS` |
+| Snowflake Role | `OF_KAFKA_RUNTIME_ROLE` |
+| Snowflake Warehouse | `OF_KAFKA_WH` |
+| Source Database | `OF_KAFKA` |
+| Source Schema | `INGEST` |
+| Snowflake Authentication | `SNOWFLAKE_MANAGED` |
 
-*Kafka Sink SASL Destination Parameters:*
+*Kafka Sink SASL Destination Parameters (Kafka broker):*
 
 | Parameter | Value |
 |-----------|-------|
