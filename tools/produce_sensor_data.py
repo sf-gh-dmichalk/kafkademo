@@ -39,7 +39,7 @@ SENSORS_PER_STORE = [
 
 ALARM_SCENARIOS = {
     ("4421", "FRZ-4421-003"),
-    ("6010", "REF-6010-002"),
+    ("6010", "REF-6010-005"),
     ("7345", "FRZ-7345-001"),
 }
 
@@ -90,7 +90,7 @@ def generate_readings():
                 if is_alarm_sensor and sid == "FRZ-4421-003":
                     temp = alarm_4421_reading(i)
                     door = False
-                elif is_alarm_sensor and sid == "REF-6010-002":
+                elif is_alarm_sensor and sid == "REF-6010-005":
                     temp = alarm_6010_reading(i)
                     door = i >= 10
                 elif is_alarm_sensor and sid == "FRZ-7345-001":

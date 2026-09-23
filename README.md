@@ -235,7 +235,7 @@ python3 produce_sensor_data.py
 Produces 6,000 JSON messages (50 stores × 6 sensors × 20 readings) with 3 alarm scenarios:
 
 - Store 4421: Freezer FRZ-4421-003 compressor failing — temp climbing from -10°F to +18°F
-- Store 6010: Walk-in cooler door stuck open — temp spiking to 52°F
+- Store 6010: Walk-in cooler REF-6010-005 door stuck open — temp spiking to 52°F
 - Store 7345: Refrigeration unit cycling — intermittent alarms every few minutes
 
 The HP connector ingests them into `SENSOR_READINGS_RAW` (schema-evolved flat columns with FLOAT types). Dynamic tables refresh within 1-2 minutes. Alarm events flow back to `cold_chain.alarm_events` via the Sink connector.
