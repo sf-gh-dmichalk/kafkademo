@@ -57,7 +57,7 @@ QUALIFY ROW_NUMBER() OVER (
    Uses CURRENT_TIMESTAMP in WHERE → FULL refresh (that's fine, no stream needed).
    ----------------------------------------------------------------------- */
 CREATE OR REPLACE DYNAMIC ICEBERG TABLE EQUIPMENT_STATUS
-    TARGET_LAG = '2 minutes'
+    TARGET_LAG = '1 minute'
     WAREHOUSE = OF_KAFKA_WH
     AS
 SELECT
@@ -85,7 +85,7 @@ GROUP BY sensor_id, store_id, equipment_type, zone;
    INCREMENTAL refresh — no CURRENT_TIMESTAMP() so stream works.
    ----------------------------------------------------------------------- */
 CREATE OR REPLACE DYNAMIC ICEBERG TABLE ALARM_EVENTS
-    TARGET_LAG = '2 minutes'
+    TARGET_LAG = '1 minute'
     WAREHOUSE = OF_KAFKA_WH
     REFRESH_MODE = INCREMENTAL
     AS
